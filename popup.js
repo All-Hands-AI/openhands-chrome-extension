@@ -23,6 +23,12 @@ document.getElementById('settingsButton').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
+// Also open settings page when settings link is clicked
+document.getElementById('settingsLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  chrome.runtime.openOptionsPage();
+});
+
 // Launch OpenHands when launch button is clicked
 document.getElementById('launchButton').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

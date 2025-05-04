@@ -16,6 +16,14 @@
       margin-bottom: 20px;
       border-bottom: 1px solid #d0d7de;
       padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo {
+      width: 32px;
+      height: 32px;
+      margin-right: 12px;
     }
     
     .form-group {
@@ -44,18 +52,18 @@
     }
     
     button {
-      background-color: #2da44e;
-      color: #ffffff;
-      border: 1px solid rgba(27, 31, 36, 0.15);
+      background-color: rgba(201, 185, 116, 0.9); /* OpenHands yellow */
+      color: #0D0F11; /* OpenHands base dark color */
+      border: 1px solid #CFB755;
       border-radius: 6px;
-      padding: 5px 16px;
+      padding: 8px 20px;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
     }
     
     button:hover {
-      background-color: #2c974b;
+      background-color: #C9B974; /* Full OpenHands yellow on hover */
     }
     
     .status {
@@ -66,14 +74,16 @@
     }
     
     .status.success {
-      background-color: #dafbe1;
+      background-color: rgba(165, 231, 94, 0.2); /* OpenHands success color with transparency */
       color: #116329;
+      border: 1px solid #A5E75E;
       display: block;
     }
     
     .status.error {
-      background-color: #ffebe9;
+      background-color: rgba(231, 106, 94, 0.2); /* OpenHands danger color with transparency */
       color: #cf222e;
+      border: 1px solid #E76A5E;
       display: block;
     }
     
@@ -89,6 +99,7 @@
       font-size: 18px;
       margin-top: 0;
       margin-bottom: 12px;
+      color: #0D0F11;
     }
     
     .instructions ol {
@@ -99,10 +110,22 @@
     .instructions li {
       margin-bottom: 8px;
     }
+    
+    a {
+      color: #CFB755;
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1>OpenHands GitHub Launcher Settings</h1>
+  <h1>
+    <img src="images/openhands-logo.svg" alt="OpenHands Logo" class="logo">
+    OpenHands GitHub Launcher Settings
+  </h1>
   
   <div class="form-group">
     <label for="apiKey">OpenHands API Key</label>

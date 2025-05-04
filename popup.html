@@ -16,6 +16,14 @@
       margin-bottom: 16px;
       border-bottom: 1px solid #d0d7de;
       padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
     }
     
     .message {
@@ -44,12 +52,13 @@
     }
     
     button.primary {
-      background-color: #2da44e;
-      color: #ffffff;
+      background-color: rgba(201, 185, 116, 0.9); /* OpenHands yellow */
+      color: #0D0F11; /* OpenHands base dark color */
+      border-color: #CFB755;
     }
     
     button.primary:hover {
-      background-color: #2c974b;
+      background-color: #C9B974; /* Full OpenHands yellow on hover */
     }
     
     .status {
@@ -61,10 +70,26 @@
     .github-only {
       display: none;
     }
+    
+    .settings-link {
+      display: block;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #0969da;
+      text-decoration: none;
+    }
+    
+    .settings-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1>OpenHands GitHub Launcher</h1>
+  <h1>
+    <img src="images/openhands-logo.svg" alt="OpenHands Logo" class="logo">
+    OpenHands GitHub Launcher
+  </h1>
   
   <div id="notGitHub" class="message">
     Navigate to a GitHub repository or pull request to use this extension.
@@ -82,6 +107,8 @@
     
     <div id="status" class="status"></div>
   </div>
+  
+  <a href="#" id="settingsLink" class="settings-link">Configure API Key Settings</a>
   
   <script src="popup.js"></script>
 </body>
