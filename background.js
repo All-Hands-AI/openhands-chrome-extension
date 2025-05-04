@@ -33,8 +33,15 @@ async function startOpenHandsConversation(data) {
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `HTTP error ${response.status}`);
+      let errorMessage = `HTTP error ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch (e) {
+        // If we can't parse the JSON, just use the HTTP error
+        console.error('Failed to parse error response:', e);
+      }
+      throw new Error(errorMessage);
     }
     
     const result = await response.json();

@@ -28,5 +28,11 @@
   "background": {
     "service_worker": "background.js"
   },
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["images/openhands-logo.svg"],
+      "matches": ["https://github.com/*"]
+    }
+  ]
 }

@@ -13,31 +13,40 @@
   border: 1px solid rgba(27, 31, 36, 0.15);
   border-radius: 6px;
   appearance: none;
-  background-color: #2da44e;
-  color: #ffffff;
+  background-color: rgba(201, 185, 116, 0.9); /* OpenHands yellow with slight transparency */
+  color: #0D0F11; /* OpenHands base dark color for text */
   transition: background-color 0.2s;
   margin-left: 8px;
+  position: relative;
 }
 
 .openhands-launch-btn:hover {
-  background-color: #2c974b;
+  background-color: #C9B974; /* Full OpenHands yellow on hover */
 }
 
 .openhands-launch-btn:active {
-  background-color: #298e46;
+  background-color: #CFB755; /* OpenHands logo color on active */
 }
 
 .openhands-launch-btn.loading {
-  background-color: #0969da;
+  background-color: rgba(201, 185, 116, 0.7);
   cursor: wait;
 }
 
 .openhands-launch-btn.success {
-  background-color: #2da44e;
+  background-color: #A5E75E; /* OpenHands success color */
 }
 
 .openhands-launch-btn.error {
-  background-color: #cf222e;
+  background-color: #E76A5E; /* OpenHands danger color */
+}
+
+/* OpenHands logo in button */
+.openhands-logo {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 /* For repository pages */

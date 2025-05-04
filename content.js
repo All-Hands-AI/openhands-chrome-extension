@@ -30,7 +30,7 @@ function addOpenHandsButton() {
   
   const button = document.createElement('button');
   button.className = 'openhands-launch-btn';
-  button.innerHTML = '<span>Launch in OpenHands</span>';
+  button.innerHTML = '<img src="' + chrome.runtime.getURL('images/openhands-logo.svg') + '" class="openhands-logo" alt="OpenHands Logo"><span>Launch in OpenHands</span>';
   button.title = 'Start an OpenHands conversation for this repository';
   
   // Add click event listener
@@ -199,27 +199,30 @@ function updateButtonState(state) {
   const button = document.querySelector('.openhands-launch-btn');
   if (!button) return;
   
+  // Get logo HTML
+  const logoHTML = '<img src="' + chrome.runtime.getURL('images/openhands-logo.svg') + '" class="openhands-logo" alt="OpenHands Logo">';
+  
   // Reset classes
   button.classList.remove('loading', 'success', 'error');
   
   if (state === 'loading') {
     button.classList.add('loading');
-    button.innerHTML = '<span>Launching...</span>';
+    button.innerHTML = `${logoHTML}<span>Launching...</span>`;
   } else if (state === 'success') {
     button.classList.add('success');
-    button.innerHTML = '<span>Launched!</span>';
+    button.innerHTML = `${logoHTML}<span>Launched!</span>`;
     // Reset after 3 seconds
     setTimeout(() => {
       button.classList.remove('success');
-      button.innerHTML = '<span>Launch in OpenHands</span>';
+      button.innerHTML = `${logoHTML}<span>Launch in OpenHands</span>`;
     }, 3000);
   } else if (state === 'error') {
     button.classList.add('error');
-    button.innerHTML = '<span>Failed to launch</span>';
+    button.innerHTML = `${logoHTML}<span>Failed to launch</span>`;
     // Reset after 3 seconds
     setTimeout(() => {
       button.classList.remove('error');
-      button.innerHTML = '<span>Launch in OpenHands</span>';
+      button.innerHTML = `${logoHTML}<span>Launch in OpenHands</span>`;
     }, 3000);
   }
 }
