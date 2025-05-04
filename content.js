@@ -104,8 +104,16 @@ async function handleRepoLaunch(repoInfo) {
     }, response => {
       if (response.success) {
         updateButtonState('success');
-        // Open the conversation in a new tab
-        window.open(response.conversationUrl, '_blank');
+        
+        // If we have a conversation URL, open it in a new tab
+        if (response.conversationUrl) {
+          window.open(response.conversationUrl, '_blank');
+        }
+        
+        // If we have a message (e.g., "Opened in new tab"), log it
+        if (response.message) {
+          console.log(response.message);
+        }
       } else {
         updateButtonState('error');
         alert(`Error: ${response.error}`);
@@ -157,8 +165,16 @@ async function handlePRLaunch(repoInfo) {
     }, response => {
       if (response.success) {
         updateButtonState('success');
-        // Open the conversation in a new tab
-        window.open(response.conversationUrl, '_blank');
+        
+        // If we have a conversation URL, open it in a new tab
+        if (response.conversationUrl) {
+          window.open(response.conversationUrl, '_blank');
+        }
+        
+        // If we have a message (e.g., "Opened in new tab"), log it
+        if (response.message) {
+          console.log(response.message);
+        }
       } else {
         updateButtonState('error');
         alert(`Error: ${response.error}`);
