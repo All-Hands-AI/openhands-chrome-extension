@@ -60,7 +60,7 @@ async function startOpenHandsConversation(data) {
       
       return {
         success: false,
-        error: 'CORS error: Unable to connect to OpenHands API directly from the extension. This is a browser security restriction. Please use the "Open OpenHands Website" button in the extension popup.'
+        error: 'CORS error: Unable to connect to OpenHands API directly from the extension due to browser security restrictions.'
       };
     }
     

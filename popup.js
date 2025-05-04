@@ -23,18 +23,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       }
     });
     
-    // Parse GitHub URL to extract repo info for direct website link
-    const urlParts = currentUrl.replace('https://github.com/', '').split('/');
-    if (urlParts.length >= 2) {
-      const owner = urlParts[0];
-      const repo = urlParts[1];
-      
-      // Set up the direct website link
-      document.getElementById('openWebsiteButton').addEventListener('click', () => {
-        const newTabUrl = `https://app.all-hands.dev/new-conversation?repository=${owner}/${repo}`;
-        chrome.tabs.create({ url: newTabUrl });
-      });
-    }
+    // Set up the direct website link
+    document.getElementById('openWebsiteButton').addEventListener('click', () => {
+      chrome.tabs.create({ url: 'https://app.all-hands.dev' });
+    });
   }
 });
 
