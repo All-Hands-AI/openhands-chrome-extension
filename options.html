@@ -133,6 +133,12 @@
     <div class="help-text">Your API key is used to authenticate with the OpenHands API. It will be stored securely in your browser.</div>
   </div>
   
+  <div class="form-group">
+    <label for="baseUrl">OpenHands API Base URL</label>
+    <input type="text" id="baseUrl" placeholder="Enter the OpenHands API base URL">
+    <div class="help-text">The base URL for the OpenHands API. Default is https://app.all-hands.dev</div>
+  </div>
+  
   <button id="saveButton">Save Settings</button>
   
   <div id="status" class="status"></div>
@@ -147,6 +153,9 @@
       <li>Give your key a descriptive name (e.g., "Chrome Extension")</li>
       <li>Copy the generated API key and paste it above</li>
     </ol>
+    
+    <h2>Base URL Configuration</h2>
+    <p>The default base URL is <code>https://app.all-hands.dev</code>. You only need to change this if you're using a different OpenHands instance or if instructed by the OpenHands team.</p>
   </div>
   
   <script src="options.js"></script>

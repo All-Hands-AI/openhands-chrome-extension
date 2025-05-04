@@ -12,18 +12,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Default base URL if not set in options
+const DEFAULT_BASE_URL = 'https://app.all-hands.dev';
+
 // Function to start a conversation using the OpenHands API
 async function startOpenHandsConversation(data) {
   try {
-    // Get API key from storage
-    const { apiKey } = await chrome.storage.sync.get('apiKey');
+    // Get API key and base URL from storage
+    const { apiKey, baseUrl } = await chrome.storage.sync.get(['apiKey', 'baseUrl']);
     
     if (!apiKey) {
       throw new Error('API key not found. Please set it in the extension options.');
     }
     
+    // Use the configured base URL or default if not set
+    const apiBaseUrl = baseUrl || DEFAULT_BASE_URL;
+    
     // Make the API request
-    const response = await fetch('https://app.all-hands.dev/api/conversations', {
+    const response = await fetch(`${apiBaseUrl}/api/conversations`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -48,7 +54,7 @@ async function startOpenHandsConversation(data) {
     return {
       success: true,
       conversationId: result.conversation_id,
-      conversationUrl: `https://app.all-hands.dev/conversations/${result.conversation_id}`
+      conversationUrl: `${apiBaseUrl}/conversations/${result.conversation_id}`
     };
   } catch (error) {
     console.error('Error starting OpenHands conversation:', error);

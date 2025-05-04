@@ -23,9 +23,13 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       }
     });
     
-    // Set up the direct website link
+    // Set up the direct website link with configurable base URL
     document.getElementById('openWebsiteButton').addEventListener('click', () => {
-      chrome.tabs.create({ url: 'https://app.all-hands.dev' });
+      // Get the base URL from storage or use default
+      chrome.storage.sync.get('baseUrl', (items) => {
+        const baseUrl = items.baseUrl || 'https://app.all-hands.dev';
+        chrome.tabs.create({ url: baseUrl });
+      });
     });
   }
 });
