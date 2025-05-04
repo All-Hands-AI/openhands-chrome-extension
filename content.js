@@ -98,7 +98,7 @@ async function handleRepoLaunch(repoInfo) {
     chrome.runtime.sendMessage({
       action: 'startConversation',
       data: {
-        initial_user_msg: `I want to explore the ${repoInfo.fullRepo} repository. Please help me understand its structure and functionality.`,
+        initial_user_msg: `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please ask what task I'd like to perform.`,
         repository: repoInfo.fullRepo
       }
     }, response => {
