@@ -22,69 +22,48 @@ async function startOpenHandsConversation(data) {
       throw new Error('API key not found. Please set it in the extension options.');
     }
     
-    try {
-      // First try with regular CORS mode
-      const response = await fetch('https://app.all-hands.dev/api/conversations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      
-      if (!response.ok) {
-        let errorMessage = `HTTP error ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (e) {
-          // If we can't parse the JSON, just use the HTTP error
-          console.error('Failed to parse error response:', e);
-        }
-        throw new Error(errorMessage);
+    // Make the API request
+    const response = await fetch('https://app.all-hands.dev/api/conversations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      let errorMessage = `HTTP error ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch (e) {
+        // If we can't parse the JSON, just use the HTTP error
+        console.error('Failed to parse error response:', e);
       }
-      
-      const result = await response.json();
-      return {
-        success: true,
-        conversationId: result.conversation_id,
-        conversationUrl: `https://app.all-hands.dev/conversations/${result.conversation_id}`
-      };
-    } catch (error) {
-      // If there's a CORS error, we'll try to open the conversation in a new tab instead
-      if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-        console.log('CORS issue detected, opening conversation in new tab');
-        
-        // Open the OpenHands website in a new tab
-        const newTabUrl = 'https://app.all-hands.dev/new-conversation?' + 
-          new URLSearchParams({
-            repo: data.repository,
-            branch: data.branch || 'main',
-            instruction: data.initial_user_msg || ''
-          }).toString();
-        
-        chrome.tabs.create({ url: newTabUrl });
-        
-        return {
-          success: true,
-          message: 'Opened conversation in new tab due to CORS restrictions'
-        };
-      }
-      
-      // For other errors, just propagate them
-      throw error;
+      throw new Error(errorMessage);
     }
     
-    // This code is unreachable due to the try/catch block above
-    // Keeping it commented for reference
-    /*return {
+    const result = await response.json();
+    return {
       success: true,
       conversationId: result.conversation_id,
       conversationUrl: `https://app.all-hands.dev/conversations/${result.conversation_id}`
-    };*/
+    };
   } catch (error) {
     console.error('Error starting OpenHands conversation:', error);
+    
+    // If there's a CORS error, we'll provide a more helpful error message
+    if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+      // Set a flag that we've had CORS errors
+      chrome.storage.local.set({ hadCorsError: true });
+      
+      return {
+        success: false,
+        error: 'CORS error: Unable to connect to OpenHands API directly from the extension. This is a browser security restriction. Please use the "Open OpenHands Website" button in the extension popup.'
+      };
+    }
+    
     return {
       success: false,
       error: error.message || 'Unknown error occurred'
