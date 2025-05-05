@@ -4,7 +4,10 @@
   "version": "1.0",
   "description": "Launch OpenHands conversations directly from GitHub repositories and pull requests",
   "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://github.com/*"],
+  "host_permissions": [
+    "https://github.com/*",
+    "https://app.all-hands.dev/*"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
