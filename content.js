@@ -350,13 +350,17 @@ async function handleRepoLaunch(repoInfo, action = 'default') {
     
     switch (action) {
       case 'learn':
-        initialMessage = `I'd like to learn about the ${repoInfo.fullRepo} codebase. Please help me understand its structure, main components, and how they work together.`;
+        initialMessage = `I'd like to learn about the ${repoInfo.fullRepo} codebase. Please browse the repository, look at the documentation and relevant code, and help me understand its structure, main components, and how they work together.`;
         break;
       case 'add_repo_md':
-        initialMessage = `I'd like to add a repo.md microagent to the ${repoInfo.fullRepo} repository. Please help me create a comprehensive repo.md file that describes the repository structure, purpose, and how to use it.`;
+        initialMessage = `Please browse the ${repoInfo.fullRepo} repository, look at the documentation and relevant code, and understand the purpose of this repository.
+
+Specifically, I want you to create a \`.openhands/microagents/repo.md\` file. This file should contain succinct information that summarizes (1) the purpose of this repository, (2) the general setup of this repo, and (3) a brief description of the structure of this repo.
+
+Read all the GitHub workflows under .github/ of the repository (if this folder exists) to understand the CI checks (e.g., linter, pre-commit), and include those in the repo.md file.`;
         break;
       case 'add_setup_sh':
-        initialMessage = `I'd like to add a setup.sh script to the ${repoInfo.fullRepo} repository. Please help me create a setup script that automates the environment setup process for this repository.`;
+        initialMessage = `I'd like you to create a setup.sh script for the ${repoInfo.fullRepo} repository. Please analyze the repository to understand its dependencies and requirements, then create a comprehensive setup script that automates the environment setup process. The script should handle installing dependencies, setting up configuration, and any other necessary steps to get the repository running.`;
         break;
     }
     
@@ -419,17 +423,27 @@ async function handlePRLaunch(repoInfo, action = 'default') {
     }
     
     // Create instruction based on the action
-    let instruction = `You are working on a PR ${repoInfo.url}, and you should check out to branch ${repoInfo.prBranch || 'the PR branch'} that corresponds to this PR, read the git diff against main branch, understand the purpose of this PR, and then awaits me for further instructions.`;
+    let instruction = `Please check the branch "${repoInfo.prBranch || 'the PR branch'}" and look at the diff against the main branch. This branch belongs to this PR "${repoInfo.url}".
+
+Once you understand the purpose of the diff, please help me understand what this PR is trying to accomplish and await further instructions.`;
     
     switch (action) {
       case 'fix_actions':
-        instruction = `You are working on a PR ${repoInfo.url} that has failing GitHub Actions. Please check out to branch ${repoInfo.prBranch || 'the PR branch'}, examine the failing GitHub Actions, and help me fix the issues causing the failures.`;
+        instruction = `Please check the branch "${repoInfo.prBranch || 'the PR branch'}" for PR ${repoInfo.url}, and run the failing GitHub Actions tests.
+
+Help me fix these tests to pass. PLEASE DO NOT modify the tests by yourself -- Let me know if you think some of the tests are incorrect.`;
         break;
       case 'resolve_conflicts':
-        instruction = `You are working on a PR ${repoInfo.url} that has merge conflicts. Please check out to branch ${repoInfo.prBranch || 'the PR branch'}, identify the merge conflicts, and help me resolve them.`;
+        instruction = `Please check the branch "${repoInfo.prBranch || 'the PR branch'}" for PR ${repoInfo.url}. This PR has merge conflicts with the main branch.
+
+Please help me identify and resolve these merge conflicts so the PR can be merged cleanly.`;
         break;
       case 'address_feedback':
-        instruction = `You are working on a PR ${repoInfo.url} that has received code review feedback. Please check out to branch ${repoInfo.prBranch || 'the PR branch'}, review the feedback comments, and help me address them.`;
+        instruction = `First, check the branch "${repoInfo.prBranch || 'the PR branch'}" and read the diff against the main branch to understand the purpose.
+
+This branch corresponds to this PR ${repoInfo.url}
+
+Next, you should use the GitHub API to read the reviews and comments on this PR and help me address them.`;
         break;
     }
     
@@ -507,9 +521,26 @@ async function handleIssueLaunch(repoInfo, action = 'investigate') {
     let instruction = '';
     
     if (action === 'investigate') {
-      instruction = `I'd like you to investigate GitHub issue #${repoInfo.issueNumber} in the ${repoInfo.fullRepo} repository (${repoInfo.url}). Please help me understand the issue, its potential causes, and suggest possible approaches to solve it.`;
+      instruction = `Please use the GitHub API to read issue #${repoInfo.issueNumber} in the ${repoInfo.fullRepo} repository (${repoInfo.url}).
+
+After reading the issue description and any comments, please help me understand:
+1. What problem is being reported
+2. What are the potential causes of this issue
+3. What parts of the codebase might be involved
+4. What approaches could be taken to investigate further
+
+Please do not start implementing a solution yet - just help me understand the issue thoroughly.`;
     } else if (action === 'solve') {
-      instruction = `I'd like you to help me solve GitHub issue #${repoInfo.issueNumber} in the ${repoInfo.fullRepo} repository (${repoInfo.url}). Please analyze the issue, propose a solution, and help me implement it.`;
+      instruction = `Please use the GitHub API to read issue #${repoInfo.issueNumber} in the ${repoInfo.fullRepo} repository (${repoInfo.url}).
+
+After reading the issue description and any comments, please:
+1. Analyze the issue to understand the root cause
+2. Explore the relevant parts of the codebase
+3. Propose a solution to fix the issue
+4. Help me implement the solution with appropriate tests
+5. Prepare a summary of the changes that could be used in a PR description
+
+Let's work together to solve this issue completely.`;
     }
     
     // Send message to background script to make API request
