@@ -56,11 +56,19 @@ document.getElementById('launchButton').addEventListener('click', () => {
       target: { tabId: tabs[0].id },
       function: () => {
         // Find and click the OpenHands button if it exists
-        const button = document.querySelector('.openhands-launch-btn');
+        const button = document.querySelector('.openhands-dropdown-toggle');
         if (button) {
           button.click();
           return true;
         }
+        
+        // For backward compatibility, try the old button class
+        const oldButton = document.querySelector('.openhands-launch-btn');
+        if (oldButton) {
+          oldButton.click();
+          return true;
+        }
+        
         return false;
       }
     }, (results) => {
