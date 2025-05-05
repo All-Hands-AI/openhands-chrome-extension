@@ -24,8 +24,9 @@
   "content_scripts": [
     {
       "matches": ["https://github.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "js": ["content/index.js"],
+      "css": ["styles.css"],
+      "type": "module"
     }
   ],
   "background": {
