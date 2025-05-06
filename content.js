@@ -57,18 +57,18 @@ function addOpenHandsButton() {
   if (isRepoPage) {
     // Repository home page options
     addDropdownItem(dropdownMenu, `New conversation for ${repoInfo.fullRepo}`, () => {
-      handleRepoLaunch(repoInfo, `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please ask what task I'd like to perform.`);
+      handleRepoLaunch(repoInfo, REPO_PROMPTS.DEFAULT(repoInfo));
     });
     
     addDropdownItem(dropdownMenu, 'Learn about this codebase', () => {
-      handleRepoLaunch(repoInfo, `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please help me understand this codebase.`);
+      handleRepoLaunch(repoInfo, REPO_PROMPTS.LEARN_CODEBASE(repoInfo));
     });
     
     // Check if repo.md exists
     const repoMdElement = document.querySelector('a[href$="/repo.md"]');
     if (!repoMdElement) {
       addDropdownItem(dropdownMenu, 'Add a repo.md microagent', () => {
-        handleRepoLaunch(repoInfo, `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please create a repo.md microagent file.`);
+        handleRepoLaunch(repoInfo, REPO_PROMPTS.ADD_REPO_MD(repoInfo));
       });
     }
     
@@ -76,7 +76,7 @@ function addOpenHandsButton() {
     const setupShElement = document.querySelector('a[href$="/setup.sh"]');
     if (!setupShElement) {
       addDropdownItem(dropdownMenu, 'Add setup.sh', () => {
-        handleRepoLaunch(repoInfo, `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please create a setup.sh script.`);
+        handleRepoLaunch(repoInfo, REPO_PROMPTS.ADD_SETUP_SH(repoInfo));
       });
     }
   } else if (isPRPage) {
@@ -91,8 +91,7 @@ function addOpenHandsButton() {
     const failingChecks = document.querySelectorAll('.checks-summary-conclusion-failure');
     if (failingChecks.length > 0) {
       addDropdownItem(dropdownMenu, 'Fix failing GitHub actions', () => {
-        const instruction = `You are working on PR #${prNumber} (${repoInfo.url}). Please help me fix the failing GitHub actions.`;
-        handlePRLaunch(repoInfo, instruction);
+        handlePRLaunch(repoInfo, PR_PROMPTS.FIX_ACTIONS(repoInfo));
       });
     }
     
@@ -100,8 +99,7 @@ function addOpenHandsButton() {
     const mergeConflicts = document.querySelector('.branch-action-item.color-border-danger');
     if (mergeConflicts) {
       addDropdownItem(dropdownMenu, 'Resolve merge conflicts', () => {
-        const instruction = `You are working on PR #${prNumber} (${repoInfo.url}). Please help me resolve the merge conflicts.`;
-        handlePRLaunch(repoInfo, instruction);
+        handlePRLaunch(repoInfo, PR_PROMPTS.RESOLVE_CONFLICTS(repoInfo));
       });
     }
     
@@ -109,8 +107,7 @@ function addOpenHandsButton() {
     const reviewComments = document.querySelectorAll('.js-comment');
     if (reviewComments.length > 0) {
       addDropdownItem(dropdownMenu, 'Address code review feedback', () => {
-        const instruction = `You are working on PR #${prNumber} (${repoInfo.url}). Please help me address the code review feedback.`;
-        handlePRLaunch(repoInfo, instruction);
+        handlePRLaunch(repoInfo, PR_PROMPTS.ADDRESS_FEEDBACK(repoInfo));
       });
     }
   } else if (isIssuePage) {
@@ -118,13 +115,11 @@ function addOpenHandsButton() {
     const issueNumber = window.location.pathname.split('/').pop();
     
     addDropdownItem(dropdownMenu, `Investigate Issue #${issueNumber}`, () => {
-      const instruction = `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please help me investigate Issue #${issueNumber} (${repoInfo.url}).`;
-      handleRepoLaunch(repoInfo, instruction);
+      handleRepoLaunch(repoInfo, ISSUE_PROMPTS.INVESTIGATE(repoInfo, issueNumber));
     });
     
     addDropdownItem(dropdownMenu, `Solve Issue #${issueNumber}`, () => {
-      const instruction = `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please help me solve Issue #${issueNumber} (${repoInfo.url}).`;
-      handleRepoLaunch(repoInfo, instruction);
+      handleRepoLaunch(repoInfo, ISSUE_PROMPTS.SOLVE(repoInfo, issueNumber));
     });
   }
   
@@ -225,7 +220,7 @@ async function handleRepoLaunch(repoInfo, customMessage) {
     updateButtonState('loading');
     
     // Use custom message if provided, otherwise use default
-    const initialMessage = customMessage || `I've launched OpenHands for the ${repoInfo.fullRepo} repository. Please ask what task I'd like to perform.`;
+    const initialMessage = customMessage || REPO_PROMPTS.DEFAULT(repoInfo);
     
     // Send message to background script to make API request
     chrome.runtime.sendMessage({
@@ -285,11 +280,8 @@ async function handlePRLaunch(repoInfo, customMessage) {
       }
     }
     
-    // Create instruction for PR review
-    const defaultInstruction = `You are working on a PR ${repoInfo.url}, and you should check out to branch ${repoInfo.prBranch || 'the PR branch'} that corresponds to this PR, read the git diff against main branch, understand the purpose of this PR, and then awaits me for further instructions.`;
-    
     // Use custom message if provided, otherwise use default
-    const instruction = customMessage || defaultInstruction;
+    const instruction = customMessage || PR_PROMPTS.DEFAULT(repoInfo);
     
     // Send message to background script to make API request
     chrome.runtime.sendMessage({
