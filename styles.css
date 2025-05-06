@@ -1,3 +1,9 @@
+/* Container for the button and dropdown */
+.openhands-container {
+  display: flex;
+  position: relative;
+}
+
 /* Styles for the OpenHands button */
 .openhands-launch-btn {
   display: inline-flex;
@@ -11,13 +17,14 @@
   cursor: pointer;
   user-select: none;
   border: 1px solid rgba(27, 31, 36, 0.15);
-  border-radius: 6px;
+  border-radius: 6px 0 0 6px; /* Rounded only on left side */
   appearance: none;
   background-color: rgba(201, 185, 116, 0.9); /* OpenHands yellow with slight transparency */
   color: #0D0F11; /* OpenHands base dark color for text */
   transition: background-color 0.2s;
   margin-left: 8px;
   position: relative;
+  border-right: none; /* Remove right border for seamless connection with dropdown toggle */
 }
 
 .openhands-launch-btn:hover {
@@ -41,6 +48,86 @@
   background-color: #E76A5E; /* OpenHands danger color */
 }
 
+/* Dropdown toggle button */
+.openhands-dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 6px;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 0 6px 6px 0; /* Rounded only on right side */
+  appearance: none;
+  background-color: rgba(201, 185, 116, 0.9); /* Match main button */
+  color: #0D0F11;
+  transition: background-color 0.2s;
+}
+
+.openhands-dropdown-toggle:hover {
+  background-color: #C9B974; /* Match main button hover */
+}
+
+.openhands-dropdown-toggle:active {
+  background-color: #CFB755; /* Match main button active */
+}
+
+.openhands-dropdown-toggle.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Caret icon */
+.openhands-caret {
+  font-size: 8px;
+  display: inline-block;
+}
+
+/* Dropdown menu */
+.openhands-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  display: none;
+  min-width: 240px;
+  padding: 4px 0;
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #24292f;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  box-shadow: 0 1px 5px rgba(27, 31, 36, 0.15);
+}
+
+.openhands-dropdown-menu.show {
+  display: block;
+}
+
+/* Dropdown items */
+.openhands-dropdown-item {
+  display: block;
+  padding: 4px 16px;
+  color: #24292f;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.openhands-dropdown-item:hover {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #0969da;
+}
+
 /* OpenHands logo in button */
 .openhands-logo {
   width: 16px;
@@ -58,6 +145,6 @@
 }
 
 /* For PR pages */
-.gh-header-actions .openhands-launch-btn {
+.gh-header-actions .openhands-container {
   margin-right: 8px;
 }
