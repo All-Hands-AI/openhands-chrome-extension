@@ -26,10 +26,34 @@ export function getRepositoryInfo() {
       prNumber = pathParts[prIndex + 1];
     }
     
-    // Try to find the branch name from the page
+    // Try to find the branch name from the page using multiple selectors
+    // First try the commit-ref selector (older GitHub UI)
     const branchElements = document.querySelectorAll('.commit-ref');
     if (branchElements.length >= 2) {
       prBranch = branchElements[0].textContent.trim();
+    }
+    
+    // If not found, try the newer GitHub UI selectors
+    if (!prBranch) {
+      // Try the head ref details element
+      const headRefElement = document.querySelector('[data-hovercard-type="branch"]');
+      if (headRefElement) {
+        prBranch = headRefElement.textContent.trim();
+      }
+    }
+    
+    // If still not found, try another selector pattern
+    if (!prBranch) {
+      const branchSpan = document.querySelector('span.head-ref');
+      if (branchSpan) {
+        prBranch = branchSpan.textContent.trim();
+      }
+    }
+    
+    // Clean up the branch name if it has any extra characters
+    if (prBranch) {
+      // Remove any emoji or special characters that might be in the branch name display
+      prBranch = prBranch.replace(/:[^\s]*$/, '').trim();
     }
   } else if (pathParts.includes('issues')) {
     const issueIndex = pathParts.indexOf('issues');
