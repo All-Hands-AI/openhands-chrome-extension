@@ -71,6 +71,19 @@
   background-color: #C9B974; /* Full OpenHands yellow on hover */
 }
 
+.openhands-dropdown-toggle.loading {
+  background-color: rgba(201, 185, 116, 0.7);
+  cursor: wait;
+}
+
+.openhands-dropdown-toggle.success {
+  background-color: #A5E75E; /* OpenHands success color */
+}
+
+.openhands-dropdown-toggle.error {
+  background-color: #E76A5E; /* OpenHands danger color */
+}
+
 .openhands-dropdown-caret {
   display: inline-flex;
   align-items: center;
@@ -102,7 +115,7 @@
   position: absolute;
   top: 100%;
   right: 0;
-  z-index: 100;
+  z-index: 9999;
   min-width: 240px;
   padding: 4px 0;
   margin-top: 2px;
@@ -112,10 +125,15 @@
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(27, 31, 36, 0.12);
   display: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.1s linear;
 }
 
 .openhands-dropdown-menu.show {
   display: block;
+  visibility: visible;
+  opacity: 1;
 }
 
 .openhands-dropdown-item {
@@ -168,7 +186,7 @@
   list-style-type: none;
 }
 
-/* For PR pages */
-.gh-header-actions .openhands-launch-btn {
+/* For PR and issue pages */
+.gh-header-actions .openhands-dropdown {
   margin-right: 8px;
 }

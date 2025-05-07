@@ -62,13 +62,6 @@ document.getElementById('launchButton').addEventListener('click', () => {
           return true;
         }
         
-        // For backward compatibility, try the old button class
-        const oldButton = document.querySelector('.openhands-launch-btn');
-        if (oldButton) {
-          oldButton.click();
-          return true;
-        }
-        
         return false;
       }
     }, (results) => {
