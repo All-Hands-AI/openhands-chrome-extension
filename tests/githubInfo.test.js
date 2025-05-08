@@ -139,4 +139,22 @@ describe('getRepositoryInfo', () => {
     expect(result.prNumber).toBe('8351');
     expect(result.prBranch).toBe('fix-close-broken-socket');
   });
+  
+  test('should correctly parse branch name for xingyaoww PR scenario', () => {
+    window.location.pathname = '/All-Hands-AI/OpenHands/pull/1';
+    window.location.href = 'https://github.com/All-Hands-AI/OpenHands/pull/1';
+    
+    // Mock the commit-ref elements for the specific scenario mentioned in PR comment
+    // This PR: xingyaoww wants to merge 3 commits into main from xw/fix-mcp
+    document.querySelectorAll.mockReturnValue([
+      { textContent: 'main' },
+      { textContent: 'xw/fix-mcp' }
+    ]);
+    
+    const result = getRepositoryInfo();
+    
+    // Should correctly parse the source branch (xw/fix-mcp) not the target branch (main)
+    expect(result.prNumber).toBe('1');
+    expect(result.prBranch).toBe('xw/fix-mcp');
+  });
 });
