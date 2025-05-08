@@ -30,7 +30,9 @@ export function getRepositoryInfo() {
     // First try the commit-ref selector (older GitHub UI)
     const branchElements = document.querySelectorAll('.commit-ref');
     if (branchElements.length >= 2) {
-      prBranch = branchElements[0].textContent.trim();
+      // Use branchElements[1] for the source branch (the branch being merged from)
+      // instead of branchElements[0] which is the target branch (usually main)
+      prBranch = branchElements[1].textContent.trim();
     }
     
     // If not found, try the newer GitHub UI selectors

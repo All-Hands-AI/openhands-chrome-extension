@@ -60,12 +60,13 @@ describe('getRepositoryInfo', () => {
     
     // Mock the commit-ref elements
     document.querySelectorAll.mockReturnValue([
-      { textContent: 'feature-branch' },
-      { textContent: 'main' }
+      { textContent: 'main' },
+      { textContent: 'feature-branch' }
     ]);
     
     const result = getRepositoryInfo();
     
+    // Should get the source branch (second element) not the target branch (first element)
     expect(result.prBranch).toBe('feature-branch');
   });
   
@@ -120,5 +121,22 @@ describe('getRepositoryInfo', () => {
     const result = getRepositoryInfo();
     
     expect(result.issueNumber).toBe('456');
+  });
+  
+  test('should correctly parse branch name for PR #8351 scenario', () => {
+    window.location.pathname = '/All-Hands-AI/OpenHands/pull/8351';
+    window.location.href = 'https://github.com/All-Hands-AI/OpenHands/pull/8351';
+    
+    // Mock the commit-ref elements for the specific scenario mentioned in PR comment
+    document.querySelectorAll.mockReturnValue([
+      { textContent: 'main' },
+      { textContent: 'fix-close-broken-socket' }
+    ]);
+    
+    const result = getRepositoryInfo();
+    
+    // Should correctly parse the source branch (fix-close-broken-socket) not the target branch (main)
+    expect(result.prNumber).toBe('8351');
+    expect(result.prBranch).toBe('fix-close-broken-socket');
   });
 });
