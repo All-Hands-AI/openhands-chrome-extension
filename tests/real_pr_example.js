@@ -35,8 +35,8 @@ global.window = {
   }
 };
 
-// Import the function we want to test
-const githubInfo = require('../content/utils/githubInfo');
+// Import the function we want to test from our CommonJS version
+const githubInfo = require('./githubInfo.cjs');
 
 // Run the function with our mocked environment
 const result = githubInfo.getRepositoryInfo();
