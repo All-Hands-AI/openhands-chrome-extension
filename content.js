@@ -82,7 +82,18 @@ function addOpenHandsButton() {
   toggleButton.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Toggle button clicked');
+    
+    // Force close any other open dropdowns first
+    document.querySelectorAll('.openhands-dropdown-menu.show').forEach(menu => {
+      if (menu !== dropdownMenu) {
+        menu.classList.remove('show');
+      }
+    });
+    
+    // Toggle this dropdown
     dropdownMenu.classList.toggle('show');
+    console.log('Dropdown visibility:', dropdownMenu.classList.contains('show'));
   });
   
   // Close dropdown when clicking outside
@@ -622,7 +633,7 @@ new MutationObserver(() => {
 
 // Also check periodically in case the button container loads after our script
 const checkInterval = setInterval(() => {
-  const button = document.querySelector('.openhands-launch-btn');
+  const button = document.querySelector('.openhands-dropdown-toggle');
   if (!button) {
     addOpenHandsButton();
   }

@@ -133,9 +133,15 @@
 }
 
 .openhands-dropdown-menu.show {
-  display: block;
-  visibility: visible;
-  opacity: 1;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure dropdown is properly positioned on issue pages */
+.gh-header-actions .openhands-dropdown .openhands-dropdown-menu {
+  right: 0;
+  left: auto;
 }
 
 .openhands-dropdown-item {
@@ -193,4 +199,12 @@
 /* For PR and issue pages */
 .gh-header-actions .openhands-dropdown {
   margin-right: 8px;
+  position: relative;
+}
+
+/* Ensure dropdown is properly positioned on all pages */
+.openhands-dropdown {
+  position: relative;
+  display: inline-flex;
+  z-index: 100;
 }
