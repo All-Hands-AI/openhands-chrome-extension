@@ -23,6 +23,8 @@ A Chrome extension that adds a "Launch in OpenHands" button to GitHub repositori
 - Resolve merge conflicts (if there are any)
 - Address code review feedback (if there is any)
 
+<img width="1284" alt="image" src="https://github.com/user-attachments/assets/e328ac1b-2ddc-4129-9e99-26050b6761a4" />
+
 ### Issue Page Options
 - Investigate the issue
 - Solve the issue
