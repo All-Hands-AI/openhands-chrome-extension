@@ -26,6 +26,14 @@ export function getRepositoryInfo() {
       prNumber = pathParts[prIndex + 1];
     }
     
+    // First try head-ref
+    if (!prBranch) {
+      const branchSpan = document.querySelector('span.head-ref');
+      if (branchSpan) {
+        prBranch = branchSpan.textContent.trim();
+      }
+    }
+
     // Try to find the branch name from the page using multiple selectors
     // First try the commit-ref selector (older GitHub UI)
     const branchElements = document.querySelectorAll('.commit-ref');
@@ -43,15 +51,7 @@ export function getRepositoryInfo() {
         prBranch = headRefElement.textContent.trim();
       }
     }
-    
-    // If still not found, try another selector pattern
-    if (!prBranch) {
-      const branchSpan = document.querySelector('span.head-ref');
-      if (branchSpan) {
-        prBranch = branchSpan.textContent.trim();
-      }
-    }
-    
+
     // Clean up the branch name if it has any extra characters
     if (prBranch) {
       // Remove any emoji or special characters that might be in the branch name display
