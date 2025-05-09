@@ -62,11 +62,11 @@ function getRepositoryInfo() {
     if (prIndex >= 0 && prIndex + 1 < pathParts.length) {
       prNumber = pathParts[prIndex + 1];
     }
-
-    // Try to find the branch name from the page
-    const branchElements = document.querySelectorAll('.commit-ref');
-    if (branchElements.length >= 2) {
-      prBranch = branchElements[0].textContent.trim();
+    if (!prBranch) {
+      const branchSpan = document.querySelector('span.head-ref');
+      if (branchSpan) {
+        prBranch = branchSpan.textContent.trim();
+      }
     }
   } else if (pathParts.includes('issues')) {
     const issueIndex = pathParts.indexOf('issues');
