@@ -336,7 +336,7 @@ Once you understand the purpose of the diff, please help me understand what this
 Help me fix these tests to pass. PLEASE DO NOT modify the tests by yourself -- Let me know if you think some of the tests are incorrect.`;
         break;
       case 'resolve_conflicts':
-        instruction = `You are checked out to branch "${repoInfo.prBranch || 'the PR branch'}", which has an open PR ${repoInfo.url}. This PR has merge conflicts with the main branch that need to be resolved.
+        instruction = `Please checkout "${repoInfo.prBranch || 'the PR'}" branch, which has an open PR ${repoInfo.url}. This PR has merge conflicts with the main branch that need to be resolved.
 
 # Steps to Resolve Merge Conflicts
 
@@ -346,9 +346,9 @@ Help me fix these tests to pass. PLEASE DO NOT modify the tests by yourself -- L
    - Determine the correct resolution that preserves the intended functionality
    - Implement the resolution while maintaining code quality
 3. After resolving all conflicts:
-   - Test the changes to ensure they work as expected
    - Commit the resolved conflicts
-   - Push the changes to update the PR
+   - Push the changes to the SAME remote branch to update the PR
+   - Use Github API to leave a comment on the PR to let me know that you have resolved the conflicts
 
 Please resolve these merge conflicts in a way that preserves the intended functionality of both branches while maintaining code quality and consistency.`;
         break;
