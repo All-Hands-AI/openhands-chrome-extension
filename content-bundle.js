@@ -149,6 +149,45 @@ async function checkForMergeConflicts() {
   }
 }
 
+// Adds a "Resolve Conflict with OpenHands" button next to GitHub's "Resolve conflicts" button
+function addResolveConflictWithOpenHandsButton(repoInfo) {
+  try {
+    // Look for GitHub's "Resolve conflicts" button using a more reliable approach
+    const allButtons = document.querySelectorAll('button.btn-sm');
+    let githubResolveButton = null;
+    
+    for (const button of allButtons) {
+      if (button.textContent.trim() === 'Resolve conflicts' && 
+          !button.classList.contains('openhands-resolve-conflicts-btn')) {
+        githubResolveButton = button;
+        break;
+      }
+    }
+    
+    // If we found the button and our button doesn't already exist
+    if (githubResolveButton && !document.querySelector('.openhands-resolve-conflicts-btn')) {
+      // Create our button with similar styling to GitHub's button
+      const openhandsResolveButton = document.createElement('button');
+      openhandsResolveButton.className = 'btn btn-sm openhands-resolve-conflicts-btn';
+      
+      // Add OpenHands logo and text
+      openhandsResolveButton.innerHTML = '<img src="' + chrome.runtime.getURL('images/openhands-logo.svg') + 
+                                        '" class="openhands-logo" alt="OpenHands Logo">' + 
+                                        '<span>Resolve Conflict with OpenHands</span>';
+      
+      // Add click event listener
+      openhandsResolveButton.addEventListener('click', () => {
+        handlePRLaunch(repoInfo, 'resolve_conflicts');
+      });
+      
+      // Insert our button after GitHub's button
+      githubResolveButton.parentNode.insertBefore(openhandsResolveButton, githubResolveButton.nextSibling);
+    }
+  } catch (error) {
+    console.error('Error adding Resolve Conflict with OpenHands button:', error);
+  }
+}
+
 // Checks for code review feedback in a PR
 async function checkForCodeReviewFeedback() {
   try {
@@ -297,9 +336,21 @@ Once you understand the purpose of the diff, please help me understand what this
 Help me fix these tests to pass. PLEASE DO NOT modify the tests by yourself -- Let me know if you think some of the tests are incorrect.`;
         break;
       case 'resolve_conflicts':
-        instruction = `Please check the branch "${repoInfo.prBranch || 'the PR branch'}" for PR ${repoInfo.url}. This PR has merge conflicts with the main branch.
+        instruction = `Please checkout "${repoInfo.prBranch || 'the PR'}" branch, which has an open PR ${repoInfo.url}. This PR has merge conflicts with the main branch that need to be resolved.
 
-Please help me identify and resolve these merge conflicts so the PR can be merged cleanly.`;
+# Steps to Resolve Merge Conflicts
+
+1. Analyze the conflicts by examining the diff and understanding what changes are conflicting
+2. For each conflicting file:
+   - Carefully review both versions of the code
+   - Determine the correct resolution that preserves the intended functionality
+   - Implement the resolution while maintaining code quality
+3. After resolving all conflicts:
+   - Commit the resolved conflicts
+   - Push the changes to the SAME remote branch to update the PR
+   - Use Github API to leave a comment on the PR to let me know that you have resolved the conflicts
+
+Please resolve these merge conflicts in a way that preserves the intended functionality of both branches while maintaining code quality and consistency.`;
         break;
       case 'address_feedback':
         instruction = `First, check the branch "${repoInfo.prBranch || 'the PR branch'}" and read the diff against the main branch to understand the purpose.
@@ -499,6 +550,7 @@ function addPRDropdownItems(dropdownMenu, repoInfo) {
   // Check for merge conflicts
   checkForMergeConflicts().then(hasConflicts => {
     if (hasConflicts) {
+      // Add the option to the dropdown menu
       const resolveConflictsItem = document.createElement('button');
       resolveConflictsItem.className = 'openhands-dropdown-item';
       resolveConflictsItem.textContent = 'Resolve merge conflicts';
@@ -506,6 +558,9 @@ function addPRDropdownItems(dropdownMenu, repoInfo) {
         handlePRLaunch(repoInfo, 'resolve_conflicts');
       });
       dropdownMenu.appendChild(resolveConflictsItem);
+      
+      // Also add the standalone button next to GitHub's "Resolve conflicts" button
+      addResolveConflictWithOpenHandsButton(repoInfo);
     }
   });
   
@@ -639,10 +694,52 @@ function addOpenHandsButton() {
 function initialize() {
   // Add the OpenHands button to the page
   addOpenHandsButton();
+  
+  // Check if we're on a PR page with conflicts
+  const { isPRPage } = detectPageType();
+  if (isPRPage) {
+    const repoInfo = getRepositoryInfo();
+    checkForMergeConflicts().then(hasConflicts => {
+      if (hasConflicts) {
+        // Add the standalone button next to GitHub's "Resolve conflicts" button
+        addResolveConflictWithOpenHandsButton(repoInfo);
+      }
+    });
+  }
+}
+
+// Set up a MutationObserver to watch for the "Resolve conflicts" button being added
+function setupConflictButtonObserver() {
+  const { isPRPage } = detectPageType();
+  if (!isPRPage) return;
+  
+  const repoInfo = getRepositoryInfo();
+  
+  // Create a MutationObserver to watch for changes to the DOM
+  const observer = new MutationObserver((mutations) => {
+    // Check if any of the mutations added a "Resolve conflicts" button
+    for (const mutation of mutations) {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        // Check if we're on a PR page with conflicts
+        checkForMergeConflicts().then(hasConflicts => {
+          if (hasConflicts) {
+            // Add the standalone button next to GitHub's "Resolve conflicts" button
+            addResolveConflictWithOpenHandsButton(repoInfo);
+          }
+        });
+      }
+    }
+  });
+  
+  // Start observing the document with the configured parameters
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
 // Run the initialization when the page is loaded
-document.addEventListener('DOMContentLoaded', initialize);
+document.addEventListener('DOMContentLoaded', () => {
+  initialize();
+  setupConflictButtonObserver();
+});
 
 // Also run on navigation within GitHub (for SPA behavior)
 let lastUrl = location.href;
@@ -650,9 +747,13 @@ new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
     lastUrl = url;
-    setTimeout(initialize, 500); // Small delay to ensure DOM is updated
+    setTimeout(() => {
+      initialize();
+      setupConflictButtonObserver();
+    }, 500); // Small delay to ensure DOM is updated
   }
 }).observe(document, { subtree: true, childList: true });
 
 // Initial run
 initialize();
+setupConflictButtonObserver();

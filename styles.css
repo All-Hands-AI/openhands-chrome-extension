@@ -208,3 +208,32 @@
   display: inline-flex;
   z-index: 100;
 }
+
+/* Styles for the "Resolve Conflict with OpenHands" button */
+.openhands-resolve-conflicts-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  appearance: none;
+  background-color: rgba(201, 185, 116, 0.9); /* OpenHands yellow with slight transparency */
+  color: #0D0F11; /* OpenHands base dark color for text */
+  transition: background-color 0.2s;
+  margin-left: 8px;
+}
+
+.openhands-resolve-conflicts-btn:hover {
+  background-color: #C9B974; /* Full OpenHands yellow on hover */
+}
+
+.openhands-resolve-conflicts-btn:active {
+  background-color: #CFB755; /* OpenHands logo color on active */
+}
