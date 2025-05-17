@@ -196,7 +196,7 @@ function updateButtonState(state) {
 }
 
 // Handles launching OpenHands for a repository
-async function handleRepoLaunch(repoInfo, action = 'default') {
+async function handleRepoLaunch(repoInfo, action = 'default', customMessage = null) {
   try {
     // Get API key from storage
     const { apiKey } = await chrome.storage.sync.get('apiKey');
@@ -227,6 +227,11 @@ Read all the GitHub workflows under .github/ of the repository (if this folder e
       case 'add_setup_sh':
         initialMessage = `I'd like you to create a setup.sh script for the ${repoInfo.fullRepo} repository. Please analyze the repository to understand its dependencies and requirements, then create a comprehensive setup script that automates the environment setup process. The script should handle installing dependencies, setting up configuration, and any other necessary steps to get the repository running.`;
         break;
+    }
+    
+    // Use custom message if provided
+    if (customMessage && customMessage.trim() !== '') {
+      initialMessage = customMessage;
     }
     
     // Send message to background script to make API request
@@ -261,7 +266,7 @@ Read all the GitHub workflows under .github/ of the repository (if this folder e
 }
 
 // Handles launching OpenHands for a pull request
-async function handlePRLaunch(repoInfo, action = 'default') {
+async function handlePRLaunch(repoInfo, action = 'default', customMessage = null) {
   try {
     // Get API key from storage
     const { apiKey } = await chrome.storage.sync.get('apiKey');
@@ -310,6 +315,11 @@ Next, you should use the GitHub API to read the reviews and comments on this PR 
         break;
     }
     
+    // Use custom message if provided
+    if (customMessage && customMessage.trim() !== '') {
+      instruction = customMessage;
+    }
+    
     // Send message to background script to make API request
     chrome.runtime.sendMessage({
       action: 'startConversation',
@@ -342,7 +352,7 @@ Next, you should use the GitHub API to read the reviews and comments on this PR 
 }
 
 // Handles launching OpenHands for an issue
-async function handleIssueLaunch(repoInfo, action = 'investigate') {
+async function handleIssueLaunch(repoInfo, action = 'investigate', customMessage = null) {
   try {
     // Get API key from storage
     const { apiKey } = await chrome.storage.sync.get('apiKey');
@@ -380,6 +390,11 @@ After reading the issue description and any comments, please:
 5. Prepare a summary of the changes that could be used in a PR description
 
 Let's work together to solve this issue completely.`;
+    }
+    
+    // Use custom message if provided
+    if (customMessage && customMessage.trim() !== '') {
+      instruction = customMessage;
     }
     
     // Send message to background script to make API request
@@ -420,6 +435,69 @@ function addRepoDropdownItems(dropdownMenu, repoInfo) {
   header.className = 'openhands-dropdown-header';
   header.textContent = 'Repository Actions';
   dropdownMenu.appendChild(header);
+  
+  // Custom input container
+  const inputContainer = document.createElement('div');
+  inputContainer.className = 'openhands-input-container';
+  
+  // Custom input field
+  const customInput = document.createElement('textarea');
+  customInput.className = 'openhands-custom-input';
+  customInput.placeholder = 'Enter custom instructions (optional)';
+  customInput.rows = 3;
+  
+  // Load any previously saved text from localStorage
+  const savedText = localStorage.getItem('openhandsCustomInput');
+  if (savedText) {
+    customInput.value = savedText;
+  }
+  
+  // Save text as user types
+  customInput.addEventListener('input', () => {
+    localStorage.setItem('openhandsCustomInput', customInput.value);
+  });
+  
+  // Button container
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'openhands-button-container';
+  
+  // Save button
+  const saveButton = document.createElement('button');
+  saveButton.className = 'openhands-save-button';
+  saveButton.textContent = 'Save';
+  saveButton.title = 'Save without launching';
+  saveButton.addEventListener('click', () => {
+    localStorage.setItem('openhandsCustomInput', customInput.value);
+    // Show a brief "Saved" message
+    saveButton.textContent = 'Saved!';
+    setTimeout(() => {
+      saveButton.textContent = 'Save';
+    }, 1500);
+  });
+  
+  // Submit button
+  const submitButton = document.createElement('button');
+  submitButton.className = 'openhands-submit-button';
+  submitButton.textContent = 'Launch with Custom Instructions';
+  submitButton.addEventListener('click', () => {
+    handleRepoLaunch(repoInfo, 'default', customInput.value);
+  });
+  
+  // Add buttons to button container
+  buttonContainer.appendChild(saveButton);
+  buttonContainer.appendChild(submitButton);
+  
+  // Add input and button container to main container
+  inputContainer.appendChild(customInput);
+  inputContainer.appendChild(buttonContainer);
+  
+  // Add container to dropdown
+  dropdownMenu.appendChild(inputContainer);
+  
+  // Add divider
+  const divider = document.createElement('div');
+  divider.className = 'openhands-dropdown-divider';
+  dropdownMenu.appendChild(divider);
   
   // New conversation option
   const newConversationItem = document.createElement('button');
@@ -473,6 +551,69 @@ function addPRDropdownItems(dropdownMenu, repoInfo) {
   header.className = 'openhands-dropdown-header';
   header.textContent = 'Pull Request Actions';
   dropdownMenu.appendChild(header);
+  
+  // Custom input container
+  const inputContainer = document.createElement('div');
+  inputContainer.className = 'openhands-input-container';
+  
+  // Custom input field
+  const customInput = document.createElement('textarea');
+  customInput.className = 'openhands-custom-input';
+  customInput.placeholder = 'Enter custom instructions (optional)';
+  customInput.rows = 3;
+  
+  // Load any previously saved text from localStorage
+  const savedText = localStorage.getItem('openhandsPRCustomInput');
+  if (savedText) {
+    customInput.value = savedText;
+  }
+  
+  // Save text as user types
+  customInput.addEventListener('input', () => {
+    localStorage.setItem('openhandsPRCustomInput', customInput.value);
+  });
+  
+  // Button container
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'openhands-button-container';
+  
+  // Save button
+  const saveButton = document.createElement('button');
+  saveButton.className = 'openhands-save-button';
+  saveButton.textContent = 'Save';
+  saveButton.title = 'Save without launching';
+  saveButton.addEventListener('click', () => {
+    localStorage.setItem('openhandsPRCustomInput', customInput.value);
+    // Show a brief "Saved" message
+    saveButton.textContent = 'Saved!';
+    setTimeout(() => {
+      saveButton.textContent = 'Save';
+    }, 1500);
+  });
+  
+  // Submit button
+  const submitButton = document.createElement('button');
+  submitButton.className = 'openhands-submit-button';
+  submitButton.textContent = 'Launch with Custom Instructions';
+  submitButton.addEventListener('click', () => {
+    handlePRLaunch(repoInfo, 'default', customInput.value);
+  });
+  
+  // Add buttons to button container
+  buttonContainer.appendChild(saveButton);
+  buttonContainer.appendChild(submitButton);
+  
+  // Add input and button container to main container
+  inputContainer.appendChild(customInput);
+  inputContainer.appendChild(buttonContainer);
+  
+  // Add container to dropdown
+  dropdownMenu.appendChild(inputContainer);
+  
+  // Add divider
+  const divider = document.createElement('div');
+  divider.className = 'openhands-dropdown-divider';
+  dropdownMenu.appendChild(divider);
   
   // New conversation option
   const newConversationItem = document.createElement('button');
@@ -530,6 +671,69 @@ function addIssueDropdownItems(dropdownMenu, repoInfo) {
   header.className = 'openhands-dropdown-header';
   header.textContent = 'Issue Actions';
   dropdownMenu.appendChild(header);
+  
+  // Custom input container
+  const inputContainer = document.createElement('div');
+  inputContainer.className = 'openhands-input-container';
+  
+  // Custom input field
+  const customInput = document.createElement('textarea');
+  customInput.className = 'openhands-custom-input';
+  customInput.placeholder = 'Enter custom instructions (optional)';
+  customInput.rows = 3;
+  
+  // Load any previously saved text from localStorage
+  const savedText = localStorage.getItem('openhandsIssueCustomInput');
+  if (savedText) {
+    customInput.value = savedText;
+  }
+  
+  // Save text as user types
+  customInput.addEventListener('input', () => {
+    localStorage.setItem('openhandsIssueCustomInput', customInput.value);
+  });
+  
+  // Button container
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'openhands-button-container';
+  
+  // Save button
+  const saveButton = document.createElement('button');
+  saveButton.className = 'openhands-save-button';
+  saveButton.textContent = 'Save';
+  saveButton.title = 'Save without launching';
+  saveButton.addEventListener('click', () => {
+    localStorage.setItem('openhandsIssueCustomInput', customInput.value);
+    // Show a brief "Saved" message
+    saveButton.textContent = 'Saved!';
+    setTimeout(() => {
+      saveButton.textContent = 'Save';
+    }, 1500);
+  });
+  
+  // Submit button
+  const submitButton = document.createElement('button');
+  submitButton.className = 'openhands-submit-button';
+  submitButton.textContent = 'Launch with Custom Instructions';
+  submitButton.addEventListener('click', () => {
+    handleIssueLaunch(repoInfo, 'investigate', customInput.value);
+  });
+  
+  // Add buttons to button container
+  buttonContainer.appendChild(saveButton);
+  buttonContainer.appendChild(submitButton);
+  
+  // Add input and button container to main container
+  inputContainer.appendChild(customInput);
+  inputContainer.appendChild(buttonContainer);
+  
+  // Add container to dropdown
+  dropdownMenu.appendChild(inputContainer);
+  
+  // Add divider
+  const divider = document.createElement('div');
+  divider.className = 'openhands-dropdown-divider';
+  dropdownMenu.appendChild(divider);
   
   // Investigate issue option
   const investigateItem = document.createElement('button');
@@ -591,6 +795,18 @@ function addOpenHandsButton() {
   const dropdownMenu = document.createElement('div');
   dropdownMenu.className = 'openhands-dropdown-menu';
   
+  // Add close button
+  const closeButton = document.createElement('button');
+  closeButton.className = 'openhands-close-button';
+  closeButton.innerHTML = '✕';
+  closeButton.title = 'Close';
+  closeButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropdownMenu.classList.remove('show');
+  });
+  dropdownMenu.appendChild(closeButton);
+  
   // Add dropdown menu items based on page type
   if (isRepoPage) {
     addRepoDropdownItems(dropdownMenu, repoInfo);
@@ -613,19 +829,79 @@ function addOpenHandsButton() {
     }
   });
   
+  // Function to adjust dropdown position if it would go off-screen
+  function adjustDropdownPosition() {
+    if (!dropdownMenu.classList.contains('show')) return;
+    
+    const rect = dropdownMenu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Check if dropdown extends beyond right edge of viewport
+    if (rect.right > viewportWidth) {
+      dropdownMenu.style.left = 'auto';
+      dropdownMenu.style.right = '0';
+    }
+    
+    // Check if dropdown extends beyond bottom edge of viewport
+    if (rect.bottom > viewportHeight) {
+      const overflowAmount = rect.bottom - viewportHeight;
+      dropdownMenu.style.maxHeight = `${rect.height - overflowAmount - 20}px`; // 20px buffer
+    }
+  }
+  
   // Toggle dropdown on click
   toggleButton.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     dropdownMenu.classList.toggle('show');
+    
+    // If showing the dropdown, adjust its position
+    if (dropdownMenu.classList.contains('show')) {
+      setTimeout(adjustDropdownPosition, 0);
+    }
   });
   
   // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (!dropdownContainer.contains(e.target)) {
+      // Check if there's unsaved text in any of the custom input fields
+      const customInputs = dropdownMenu.querySelectorAll('.openhands-custom-input');
+      let hasUnsavedText = false;
+      
+      customInputs.forEach(input => {
+        if (input.value.trim() !== '') {
+          hasUnsavedText = true;
+        }
+      });
+      
+      // If there's unsaved text, confirm before closing
+      if (hasUnsavedText) {
+        // We don't want to show a confirmation dialog as it's disruptive
+        // Instead, we'll flash the input field to draw attention to it
+        customInputs.forEach(input => {
+          if (input.value.trim() !== '') {
+            // Add a flash animation class
+            input.classList.add('openhands-input-flash');
+            
+            // Remove the class after the animation completes
+            setTimeout(() => {
+              input.classList.remove('openhands-input-flash');
+            }, 1000);
+          }
+        });
+        
+        // Don't close the dropdown yet
+        return;
+      }
+      
+      // If no unsaved text or user confirmed, close the dropdown
       dropdownMenu.classList.remove('show');
     }
   });
+  
+  // Adjust position on window resize
+  window.addEventListener('resize', adjustDropdownPosition);
   
   // Assemble the dropdown
   dropdownContainer.appendChild(mainButton);
