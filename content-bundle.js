@@ -393,12 +393,8 @@ Let's work together to solve this issue completely.`;
       if (response.success) {
         updateButtonState('success');
         
-        // If we have a conversation URL, open it in a new tab
-        if (response.conversationUrl) {
-          window.open(response.conversationUrl, '_blank');
-        }
-        
-        // If we have a message (e.g., "Opened in new tab"), log it
+        // With our new approach, the background script will handle opening the tab
+        // We just need to show a success message
         if (response.message) {
           console.log(response.message);
         }

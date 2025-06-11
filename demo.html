@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenHands Chrome Extension Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #24292f;
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #d0d7de;
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo {
+      width: 32px;
+      height: 32px;
+      margin-right: 12px;
+    }
+    
+    .container {
+      background-color: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    h2 {
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    
+    pre {
+      background-color: #ffffff;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 10px;
+      overflow-x: auto;
+    }
+    
+    .success {
+      background-color: rgba(165, 231, 94, 0.2);
+      color: #116329;
+      border: 1px solid #A5E75E;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    
+    .error {
+      background-color: rgba(231, 106, 94, 0.2);
+      color: #cf222e;
+      border: 1px solid #E76A5E;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    <img src="images/openhands-logo.svg" alt="OpenHands Logo" class="logo">
+    OpenHands Chrome Extension Demo
+  </h1>
+  
+  <div class="container">
+    <h2>CORS Error Fix</h2>
+    <p>The OpenHands Chrome Extension has been updated to fix the CORS error that occurred when connecting to the OpenHands API directly from the extension.</p>
+    
+    <p>The new approach:</p>
+    <ol>
+      <li>Instead of making a direct API call from the extension, we now redirect to a web page that handles the API request</li>
+      <li>The web page receives the conversation data and API key as query parameters</li>
+      <li>The web page makes the API request to create the conversation</li>
+      <li>The user is then redirected to the conversation page</li>
+    </ol>
+    
+    <p>This approach avoids CORS issues entirely since the web page is making the request, not the extension.</p>
+  </div>
+  
+  <div class="container">
+    <h2>Server-Side Implementation</h2>
+    <p>The OpenHands team needs to implement a server-side endpoint to handle the redirected requests. Here's an example of how the endpoint should be implemented:</p>
+    
+    <pre>
+// Express.js example
+app.get('/api/extension/launch', async (req, res) => {
+  try {
+    // Get the data and key from the query parameters
+    const { data, key } = req.query;
+    
+    if (!data || !key) {
+      return res.status(400).send('Missing required parameters');
+    }
+    
+    // Decode and parse the data
+    const conversationData = JSON.parse(decodeURIComponent(data));
+    
+    // Validate the API key
+    const user = await validateApiKey(key);
+    if (!user) {
+      return res.status(401).send('Invalid API key');
+    }
+    
+    // Create the conversation
+    const conversation = await createConversation(user.id, conversationData);
+    
+    // Redirect to the conversation page
+    res.redirect(`/conversations/${conversation.id}`);
+  } catch (error) {
+    console.error('Error handling extension request:', error);
+    res.status(500).send('An error occurred while processing your request');
+  }
+});</pre>
+  </div>
+  
+  <div class="container">
+    <h2>Testing</h2>
+    <p>To test the extension:</p>
+    <ol>
+      <li>Install the updated extension</li>
+      <li>Configure your API key in the extension options</li>
+      <li>Navigate to a GitHub repository</li>
+      <li>Click the "Launch with OpenHands" button</li>
+      <li>You should be redirected to the OpenHands web app</li>
+    </ol>
+    
+    <div class="success">
+      <strong>Success:</strong> If everything is working correctly, you'll be redirected to the OpenHands web app and a new conversation will be created.
+    </div>
+    
+    <div class="error">
+      <strong>Error:</strong> If you see an error message, check that the server-side endpoint has been implemented correctly and that your API key is valid.
+    </div>
+  </div>
+</body>
+</html>

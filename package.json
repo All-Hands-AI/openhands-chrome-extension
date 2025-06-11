@@ -1,0 +1,15 @@
+{
+  "name": "openhands-chrome-extension",
+  "version": "1.2.0",
+  "description": "Chrome extension that adds a 'Launch with OpenHands' button to GitHub repositories and pull requests",
+  "main": "background.js",
+  "scripts": {
+    "test-server": "node test-server.js",
+    "package": "./package.sh"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "author": "OpenHands Team",
+  "license": "MIT"
+}
