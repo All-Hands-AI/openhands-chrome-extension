@@ -2,6 +2,11 @@
 
 A Chrome extension that adds a "Launch in OpenHands" button to GitHub repositories and pull requests, allowing you to start an OpenHands conversation with one click.
 
+## Version 1.2 Update
+- Fixed CORS error when connecting to OpenHands API
+- Now redirects to a web page that handles the API request instead of making the request directly from the extension
+- Added "tabs" permission to allow opening new tabs
+
 ## Features
 
 - Adds a "Launch with OpenHands" dropdown menu to GitHub repository pages (next to Star/Fork buttons)
