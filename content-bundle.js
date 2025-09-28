@@ -42,6 +42,34 @@ function findButtonContainer() {
   return container;
 }
 
+// Detects the current branch on repository pages
+function getCurrentBranch() {
+  // Try different selectors for the branch name
+  const branchSelectors = [
+    'button[data-testid="anchor-button"] span[data-component="text"]', // New GitHub UI
+    '.octicon-git-branch + span', // Older GitHub UI
+    '[data-hotkey="w"] span', // Branch switcher button
+    '.js-branch-select-menu .css-truncate-target', // Branch select menu
+    '.branch-select-menu .css-truncate-target' // Alternative branch select menu
+  ];
+
+  for (const selector of branchSelectors) {
+    const branchElement = document.querySelector(selector);
+    if (branchElement && branchElement.textContent.trim()) {
+      return branchElement.textContent.trim();
+    }
+  }
+
+  // Fallback: try to extract from URL if we're on a specific branch/tree view
+  const pathParts = window.location.pathname.split('/').filter(part => part.length > 0);
+  if (pathParts.length > 3 && (pathParts[2] === 'tree' || pathParts[2] === 'blob')) {
+    return pathParts[3];
+  }
+
+  // Default fallback
+  return 'main';
+}
+
 // Extracts repository information from the current page
 function getRepositoryInfo() {
   const pathParts = window.location.pathname.split('/').filter(part => part.length > 0);
@@ -57,6 +85,9 @@ function getRepositoryInfo() {
   // For issue pages, get issue number
   let issueNumber = null;
 
+  // Get current branch
+  let currentBranch = 'main';
+
   if (pathParts.includes('pull')) {
     const prIndex = pathParts.indexOf('pull');
     if (prIndex >= 0 && prIndex + 1 < pathParts.length) {
@@ -68,11 +99,18 @@ function getRepositoryInfo() {
         prBranch = branchSpan.textContent.trim();
       }
     }
+    // For PRs, use the PR branch as the current branch
+    currentBranch = prBranch || 'main';
   } else if (pathParts.includes('issues')) {
     const issueIndex = pathParts.indexOf('issues');
     if (issueIndex >= 0 && issueIndex + 1 < pathParts.length) {
       issueNumber = pathParts[issueIndex + 1];
     }
+    // For issues, detect the current branch from the repository page
+    currentBranch = getCurrentBranch();
+  } else {
+    // For repository pages, detect the current branch
+    currentBranch = getCurrentBranch();
   }
 
   return {
@@ -82,6 +120,7 @@ function getRepositoryInfo() {
     prNumber,
     prBranch,
     issueNumber,
+    currentBranch,
     url: window.location.href
   };
 }
@@ -233,8 +272,10 @@ Read all the GitHub workflows under .github/ of the repository (if this folder e
     chrome.runtime.sendMessage({
       action: 'startConversation',
       data: {
-        initial_user_msg: initialMessage,
-        repository: repoInfo.fullRepo
+        repository: repoInfo.fullRepo,
+        git_provider: 'github',
+        selected_branch: repoInfo.currentBranch,
+        conversation_instructions: initialMessage
       }
     }, response => {
       if (response.success) {
@@ -314,8 +355,10 @@ Next, you should use the GitHub API to read the reviews and comments on this PR 
     chrome.runtime.sendMessage({
       action: 'startConversation',
       data: {
-        initial_user_msg: instruction,
-        repository: repository
+        repository: repository,
+        git_provider: 'github',
+        selected_branch: repoInfo.prBranch || repoInfo.currentBranch,
+        conversation_instructions: instruction
       }
     }, response => {
       if (response.success) {
@@ -386,8 +429,10 @@ Let's work together to solve this issue completely.`;
     chrome.runtime.sendMessage({
       action: 'startConversation',
       data: {
-        initial_user_msg: instruction,
-        repository: repoInfo.fullRepo
+        repository: repoInfo.fullRepo,
+        git_provider: 'github',
+        selected_branch: repoInfo.currentBranch,
+        conversation_instructions: instruction
       }
     }, response => {
       if (response.success) {

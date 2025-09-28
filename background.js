@@ -32,7 +32,7 @@ async function startOpenHandsConversation(data) {
     const response = await fetch(`${apiBaseUrl}/api/conversations`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'X-Session-API-Key': apiKey,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
