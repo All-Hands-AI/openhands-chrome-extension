@@ -275,7 +275,8 @@ Read all the GitHub workflows under .github/ of the repository (if this folder e
         repository: repoInfo.fullRepo,
         git_provider: 'github',
         selected_branch: repoInfo.currentBranch,
-        conversation_instructions: initialMessage
+        conversation_instructions: initialMessage,
+        initial_user_msg: '',
       }
     }, response => {
       if (response.success) {
@@ -358,7 +359,8 @@ Next, you should use the GitHub API to read the reviews and comments on this PR 
         repository: repository,
         git_provider: 'github',
         selected_branch: repoInfo.prBranch || repoInfo.currentBranch,
-        conversation_instructions: instruction
+        conversation_instructions: instruction,
+        initial_user_msg: '',
       }
     }, response => {
       if (response.success) {
@@ -432,7 +434,8 @@ Let's work together to solve this issue completely.`;
         repository: repoInfo.fullRepo,
         git_provider: 'github',
         selected_branch: repoInfo.currentBranch,
-        conversation_instructions: instruction
+        conversation_instructions: instruction,
+        initial_user_msg: '',
       }
     }, response => {
       if (response.success) {
