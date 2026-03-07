@@ -28,8 +28,8 @@ async function startOpenHandsConversation(data) {
     // Use the configured base URL or default if not set
     const apiBaseUrl = baseUrl || DEFAULT_BASE_URL;
     
-    // Make the API request
-    const response = await fetch(`${apiBaseUrl}/api/v1/app-conversations`, {
+    // Use the streaming endpoint to wait for the conversation to be ready
+    const response = await fetch(`${apiBaseUrl}/api/v1/app-conversations/stream-start`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -44,14 +44,42 @@ async function startOpenHandsConversation(data) {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || errorMessage;
       } catch (e) {
-        // If we can't parse the JSON, just use the HTTP error
         console.error('Failed to parse error response:', e);
       }
       throw new Error(errorMessage);
     }
     
-    const result = await response.json();
-    const conversationId = result.app_conversation_id || result.id;
+    // Read the streamed JSON array of status updates
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let lastUpdate = null;
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      
+      // Extract JSON objects from the streamed array
+      const matches = [...buffer.matchAll(/\{[^{}]*\}/g)];
+      if (matches.length > 0) {
+        try {
+          lastUpdate = JSON.parse(matches[matches.length - 1][0]);
+        } catch (e) {
+          // Partial JSON, continue reading
+        }
+      }
+    }
+    
+    if (!lastUpdate) {
+      throw new Error('No response received from the streaming endpoint');
+    }
+    
+    if (lastUpdate.status === 'ERROR') {
+      throw new Error(lastUpdate.message || 'Conversation failed to start');
+    }
+    
+    const conversationId = lastUpdate.app_conversation_id || lastUpdate.id;
     return {
       success: true,
       conversationId: conversationId,
