@@ -43,7 +43,7 @@ function findButtonContainer() {
   if (repoNav) {
     const container = document.createElement('ul');
     container.className = 'pagehead-actions openhands-injected-container';
-    container.style.cssText = 'list-style:none; display:flex; padding:4px 16px; margin:0;';
+    container.style.cssText = 'list-style:none; display:flex; justify-content:flex-end; padding:4px 16px; margin:0;';
     repoNav.parentElement.insertBefore(container, repoNav.nextSibling);
     return container;
   }
