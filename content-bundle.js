@@ -22,10 +22,33 @@ function detectPageType() {
   };
 }
 
-// Finds the appropriate container for the OpenHands button based on page type
+// Finds (or creates) the container for the OpenHands button
 function findButtonContainer() {
-  // ul.pagehead-actions is present on all GitHub repo pages (repo, PR, issue)
-  return document.querySelector('ul.pagehead-actions');
+  // Old GitHub layout: pagehead-actions bar (Watch/Fork/Star row)
+  const pagehead = document.querySelector('ul.pagehead-actions');
+  if (pagehead) return pagehead;
+
+  // Legacy PR/issue header actions
+  const ghHeader = document.querySelector('.gh-header-actions');
+  if (ghHeader) return ghHeader;
+
+  // Re-use our previously injected container if it exists
+  const existing = document.querySelector('.openhands-injected-container');
+  if (existing) return existing;
+
+  // New GitHub layout: create a container and insert it after the repo tab nav
+  const repoNav = document.querySelector('.UnderlineNav')
+    || document.querySelector('nav[aria-label="Repository"]')
+    || document.querySelector('.js-repo-nav');
+  if (repoNav) {
+    const container = document.createElement('ul');
+    container.className = 'pagehead-actions openhands-injected-container';
+    container.style.cssText = 'list-style:none; display:flex; padding:4px 16px; margin:0;';
+    repoNav.parentElement.insertBefore(container, repoNav.nextSibling);
+    return container;
+  }
+
+  return null;
 }
 
 // Extracts repository information from the current page
