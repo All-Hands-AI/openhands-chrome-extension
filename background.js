@@ -29,7 +29,7 @@ async function startOpenHandsConversation(data) {
     const apiBaseUrl = baseUrl || DEFAULT_BASE_URL;
     
     // Make the API request
-    const response = await fetch(`${apiBaseUrl}/api/conversations`, {
+    const response = await fetch(`${apiBaseUrl}/api/v1/app-conversations`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -51,10 +51,11 @@ async function startOpenHandsConversation(data) {
     }
     
     const result = await response.json();
+    const conversationId = result.app_conversation_id || result.id;
     return {
       success: true,
-      conversationId: result.conversation_id,
-      conversationUrl: `${apiBaseUrl}/conversations/${result.conversation_id}`
+      conversationId: conversationId,
+      conversationUrl: `${apiBaseUrl}/conversations/${conversationId}`
     };
   } catch (error) {
     console.error('Error starting OpenHands conversation:', error);

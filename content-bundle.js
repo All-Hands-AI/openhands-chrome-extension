@@ -233,8 +233,10 @@ Read all the GitHub workflows under .github/ of the repository (if this folder e
     chrome.runtime.sendMessage({
       action: 'startConversation',
       data: {
-        initial_user_msg: initialMessage,
-        repository: repoInfo.fullRepo
+        initial_message: {
+          content: [{ type: 'text', text: initialMessage }]
+        },
+        selected_repository: repoInfo.fullRepo
       }
     }, response => {
       if (response.success) {
@@ -314,8 +316,10 @@ Next, you should use the GitHub API to read the reviews and comments on this PR 
     chrome.runtime.sendMessage({
       action: 'startConversation',
       data: {
-        initial_user_msg: instruction,
-        repository: repository
+        initial_message: {
+          content: [{ type: 'text', text: instruction }]
+        },
+        selected_repository: repository
       }
     }, response => {
       if (response.success) {
@@ -386,8 +390,10 @@ Let's work together to solve this issue completely.`;
     chrome.runtime.sendMessage({
       action: 'startConversation',
       data: {
-        initial_user_msg: instruction,
-        repository: repoInfo.fullRepo
+        initial_message: {
+          content: [{ type: 'text', text: instruction }]
+        },
+        selected_repository: repoInfo.fullRepo
       }
     }, response => {
       if (response.success) {
