@@ -24,22 +24,8 @@ function detectPageType() {
 
 // Finds the appropriate container for the OpenHands button based on page type
 function findButtonContainer() {
-  const { isRepoPage, isPRPage, isIssuePage } = detectPageType();
-
-  let container = null;
-
-  if (isRepoPage) {
-    // For repository pages, find the container with repository actions
-    container = document.querySelector('ul.pagehead-actions');
-  } else if (isPRPage) {
-    // For PR pages, find the container with PR actions
-    container = document.querySelector('.gh-header-actions');
-  } else if (isIssuePage) {
-    // For issue pages, find the container with issue actions
-    container = document.querySelector('.gh-header-actions');
-  }
-
-  return container;
+  // ul.pagehead-actions is present on all GitHub repo pages (repo, PR, issue)
+  return document.querySelector('ul.pagehead-actions');
 }
 
 // Extracts repository information from the current page
@@ -62,10 +48,20 @@ function getRepositoryInfo() {
     if (prIndex >= 0 && prIndex + 1 < pathParts.length) {
       prNumber = pathParts[prIndex + 1];
     }
-    if (!prBranch) {
-      const branchSpan = document.querySelector('span.head-ref');
-      if (branchSpan) {
-        prBranch = branchSpan.textContent.trim();
+    // Try legacy selector first, then fall back to new GitHub UI selector
+    const branchSpan = document.querySelector('span.head-ref');
+    if (branchSpan) {
+      prBranch = branchSpan.textContent.trim();
+    } else {
+      // New GitHub UI uses BranchName links: [base-branch, head-branch]
+      const branchLinks = document.querySelectorAll('a[class*="BranchName"]');
+      if (branchLinks.length >= 2) {
+        let branchText = branchLinks[1].textContent.trim();
+        // Remove owner prefix if present (e.g., "user:branch-name" -> "branch-name")
+        if (branchText.includes(':')) {
+          branchText = branchText.split(':')[1];
+        }
+        prBranch = branchText;
       }
     }
   } else if (pathParts.includes('issues')) {
@@ -88,22 +84,38 @@ function getRepositoryInfo() {
 
 // Extracts information about a PR from a forked repository
 function getPRForkInfo() {
-  // Look for the fork indicator in the PR
+  // Try legacy selector first
   const forkIndicator = document.querySelector('.fork-flag');
-
   if (forkIndicator) {
-    // Extract the fork owner and repo
     const forkLink = document.querySelector('.fork-flag a');
-
     if (forkLink) {
       const forkPath = new URL(forkLink.href).pathname;
       const forkParts = forkPath.split('/').filter(part => part.length > 0);
-
       if (forkParts.length >= 2) {
         return {
           owner: forkParts[0],
           repo: forkParts[1],
           fullRepo: `${forkParts[0]}/${forkParts[1]}`
+        };
+      }
+    }
+  }
+
+  // New GitHub UI: extract fork info from BranchName links
+  // Head branch link href format: /fork-owner/repo/tree/branch-name
+  const pathParts = window.location.pathname.split('/').filter(part => part.length > 0);
+  const repoOwner = pathParts[0];
+  const branchLinks = document.querySelectorAll('a[class*="BranchName"]');
+  if (branchLinks.length >= 2) {
+    const headBranchHref = branchLinks[1].getAttribute('href');
+    if (headBranchHref) {
+      const hrefParts = headBranchHref.split('/').filter(part => part.length > 0);
+      // hrefParts: [owner, repo, 'tree', branch-name]
+      if (hrefParts.length >= 2 && hrefParts[0] !== repoOwner) {
+        return {
+          owner: hrefParts[0],
+          repo: hrefParts[1],
+          fullRepo: `${hrefParts[0]}/${hrefParts[1]}`
         };
       }
     }
