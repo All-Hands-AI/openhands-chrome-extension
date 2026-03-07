@@ -49,34 +49,17 @@ async function startOpenHandsConversation(data) {
       throw new Error(errorMessage);
     }
     
-    // Read the streamed JSON array of status updates
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let lastUpdate = null;
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      
-      // Extract JSON objects from the streamed array
-      const matches = [...buffer.matchAll(/\{[^{}]*\}/g)];
-      if (matches.length > 0) {
-        try {
-          lastUpdate = JSON.parse(matches[matches.length - 1][0]);
-        } catch (e) {
-          // Partial JSON, continue reading
-        }
-      }
-    }
+    // Read the full streamed JSON array of status updates
+    const text = await response.text();
+    const updates = JSON.parse(text);
+    const lastUpdate = updates[updates.length - 1];
     
     if (!lastUpdate) {
       throw new Error('No response received from the streaming endpoint');
     }
     
     if (lastUpdate.status === 'ERROR') {
-      throw new Error(lastUpdate.message || 'Conversation failed to start');
+      throw new Error(lastUpdate.detail || 'Conversation failed to start');
     }
     
     const conversationId = lastUpdate.app_conversation_id || lastUpdate.id;
