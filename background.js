@@ -28,8 +28,8 @@ async function startOpenHandsConversation(data) {
     // Use the configured base URL or default if not set
     const apiBaseUrl = baseUrl || DEFAULT_BASE_URL;
     
-    // Make the API request
-    const response = await fetch(`${apiBaseUrl}/api/v1/app-conversations`, {
+    // Use the streaming endpoint to wait for the conversation to be ready
+    const response = await fetch(`${apiBaseUrl}/api/v1/app-conversations/stream-start`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -44,14 +44,25 @@ async function startOpenHandsConversation(data) {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || errorMessage;
       } catch (e) {
-        // If we can't parse the JSON, just use the HTTP error
         console.error('Failed to parse error response:', e);
       }
       throw new Error(errorMessage);
     }
     
-    const result = await response.json();
-    const conversationId = result.app_conversation_id || result.id;
+    // Read the full streamed JSON array of status updates
+    const text = await response.text();
+    const updates = JSON.parse(text);
+    const lastUpdate = updates[updates.length - 1];
+    
+    if (!lastUpdate) {
+      throw new Error('No response received from the streaming endpoint');
+    }
+    
+    if (lastUpdate.status === 'ERROR') {
+      throw new Error(lastUpdate.detail || 'Conversation failed to start');
+    }
+    
+    const conversationId = lastUpdate.app_conversation_id || lastUpdate.id;
     return {
       success: true,
       conversationId: conversationId,
